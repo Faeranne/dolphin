@@ -60,9 +60,9 @@ public:
   void RemoveDevice(int device_number);
   void AddDevice(SIDevices device, int device_number);
   void AddDevice(std::unique_ptr<ISIDevice> device);
-
   void ChangeDevice(SIDevices device, int channel);
 
+  ISIDevice *GetDevice(int device_number) const;
   SIDevices GetDeviceType(int channel) const;
 
   u32 GetPollXLines();
@@ -234,7 +234,7 @@ private:
 
   // User-configured device type. possibly overridden by TAS/Netplay
   std::array<std::atomic<SIDevices>, MAX_SI_CHANNELS> m_desired_device_types{};
-
+  
   std::array<SSIChannel, MAX_SI_CHANNELS> m_channel;
   USIPoll m_poll;
   USIComCSR m_com_csr;

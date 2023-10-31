@@ -506,6 +506,7 @@ static PyObject* set_gba_buttons(PyObject* module, PyObject* args)
   PyObject* py_button_b = PyDict_GetItemString(dict, "B");
   PyObject* py_button_l = PyDict_GetItemString(dict, "L");
   PyObject* py_button_r = PyDict_GetItemString(dict, "R");
+  PyObject* py_button_reset = PyDict_GetItemString(dict, "Reset");
   PyObject* py_button_start = PyDict_GetItemString(dict, "Start");
   PyObject* py_button_select = PyDict_GetItemString(dict, "Select");
   PyObject* py_button_up = PyDict_GetItemString(dict, "Up");
@@ -532,6 +533,8 @@ static PyObject* set_gba_buttons(PyObject* module, PyObject* args)
     set_bool(API::InputKey::GBA_LEFT, py_button_left);
   if (py_button_right != nullptr)
     set_bool(API::InputKey::GBA_RIGHT, py_button_right);
+  if (py_button_reset != nullptr)
+    set_bool(API::InputKey::GC_X, py_button_reset);
 
   Py_RETURN_NONE;
 }
@@ -824,6 +827,7 @@ class GBAInputs(TypedDict, total=False):
     B: bool
     L: bool
     R: bool
+    Reset: bool
     Start: bool
     Select: bool
     Up: bool

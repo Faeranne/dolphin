@@ -13,6 +13,12 @@
 #include "Core/HW/ProcessorInterface.h"
 #include "Core/Movie.h"
 #include "Core/System.h"
+#include "Core/HW/GBACore.h"
+#include "Core/HW/GBAPad.h"
+#include "Core/HW/SI/SI.h"
+#include "Core/HW/SI/SI_Device.h"
+#include "Core/HW/SI/SI_DeviceGBAEmu.h"
+#include "AudioCommon/AudioCommon.h"
 
 #include "Scripting/Python/coroutine.h"
 #include "Scripting/Python/Utils/convert.h"
@@ -318,6 +324,59 @@ static PyObject* SystemReset(PyObject* self)
   Py_RETURN_NONE;
 }
 
+static PyObject* ChangeControllerGBA(PyObject* module, PyObject* args)
+{
+  const auto controller_id_opt = Py::ParseTuple<int>(args);
+  if (!controller_id_opt.has_value())
+    return nullptr;
+  const int controller_id = std::get<0>(controller_id_opt.value());
+  Core::System::GetInstance().GetSerialInterface().ChangeDevice(SerialInterface::SIDEVICE_GC_GBA_EMULATED,
+                                                                      static_cast<s32>(controller_id));
+  Py_RETURN_NONE;
+}
+
+static PyObject* ChangeControllerGC(PyObject* module, PyObject* args)
+{
+  const auto controller_id_opt = Py::ParseTuple<int>(args);
+  if (!controller_id_opt.has_value())
+    return nullptr;
+  const int controller_id = std::get<0>(controller_id_opt.value());
+  Core::System::GetInstance().GetSerialInterface().ChangeDevice(SerialInterface::SIDEVICE_GC_CONTROLLER,
+                                                                      static_cast<s32>(controller_id));
+  Py_RETURN_NONE;
+}
+
+static PyObject* ChangeControllerNone(PyObject* module, PyObject* args)
+{
+  const auto controller_id_opt = Py::ParseTuple<int>(args);
+  if (!controller_id_opt.has_value())
+    return nullptr;
+  const int controller_id = std::get<0>(controller_id_opt.value());
+  Core::System::GetInstance().GetSerialInterface().ChangeDevice(SerialInterface::SIDEVICE_NONE,
+                                                                      static_cast<s32>(controller_id));
+  Py_RETURN_NONE;
+}
+
+static PyObject* ResetGBA(PyObject* module, PyObject* args)
+{
+  const auto controller_id_opt = Py::ParseTuple<int>(args);
+  if (!controller_id_opt.has_value())
+    return nullptr;
+  const int controller_id = std::get<0>(controller_id_opt.value());
+  Pad::SetGBAReset(controller_id,true);
+  Py_RETURN_NONE;
+}
+
+static PyObject* MuteGBA(PyObject* module, PyObject* args)
+{
+  const auto controller_id_opt = Py::ParseTuple<int>(args);
+  if (!controller_id_opt.has_value())
+    return nullptr;
+  const int controller_id = std::get<0>(controller_id_opt.value());
+  Core::System::GetInstance().GetSoundStream()->GetMixer()->SetGBAVolume(controller_id, 0, 0);
+  Py_RETURN_NONE;
+}
+
 PyMODINIT_FUNC PyInit_event()
 {
   static PyMethodDef methods[] = {
@@ -329,6 +388,11 @@ PyMODINIT_FUNC PyInit_event()
       Py::MakeMethodDef<PyFrameDrawnEvent::SetCallback>("on_framedrawn"),
       Py::MakeMethodDef<Reset>("_dolphin_reset"),
       Py::MakeMethodDef<SystemReset>("system_reset"),
+      {"controller_gba",ChangeControllerGBA,METH_VARARGS,""},
+      {"controller_gc",ChangeControllerGC,METH_VARARGS,""},
+      {"controller_none",ChangeControllerNone,METH_VARARGS,""},
+      {"reset_gba",ResetGBA,METH_VARARGS,""},
+      {"mute_gba",MuteGBA,METH_VARARGS,""},
 
       {nullptr, nullptr, 0, nullptr}  // Sentinel
   };

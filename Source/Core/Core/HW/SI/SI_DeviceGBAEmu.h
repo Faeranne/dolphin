@@ -30,6 +30,8 @@ public:
   void DoState(PointerWrap& p) override;
   void OnEvent(u64 userdata, s64 cycles_late) override;
 
+  std::shared_ptr<HW::GBA::Core> m_core;
+
 private:
   enum class NextAction
   {
@@ -43,7 +45,6 @@ private:
   u64 m_timestamp_sent = 0;
   u16 m_keys = 0;
 
-  std::shared_ptr<HW::GBA::Core> m_core;
   std::shared_ptr<GBAHostInterface> m_gbahost;
 };
 }  // namespace SerialInterface
